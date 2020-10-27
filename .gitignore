@@ -10,6 +10,8 @@ web/frontend/.pnp
 web/frontend/.pnp.js
 web/frontend/coverage
 web/frontend/build
+web/backend/bff
+web/backend/build
 
 # misc
 .DS_Store
