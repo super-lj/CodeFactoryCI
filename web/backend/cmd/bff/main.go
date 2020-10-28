@@ -26,5 +26,6 @@ func main() {
 	http.Handle("/", http.FileServer(http.Dir("./playground")))
 
 	// start web server
+	log.Println("Starting web server")
 	log.Fatal(http.ListenAndServe("0.0.0.0:8080", nil))
 }
