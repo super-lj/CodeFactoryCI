@@ -1,9 +1,5 @@
 package mock
 
-import (
-	graphql "github.com/graph-gophers/graphql-go"
-)
-
 type MockRepo struct {
 	Name     string
 	Branches []MockBranch
@@ -12,16 +8,17 @@ type MockRepo struct {
 
 type MockBranch struct {
 	Name     string
-	CommitID graphql.ID
+	CommitID string
 }
 
 type MockCommit struct {
-	ID   graphql.ID
+	ID   string
+	Msg  string
 	Runs []MockRun
 }
 
 type MockRun struct {
-	ID             graphql.ID
+	Num            int32
 	StartTimestamp int32
 	Duration       int32
 	Status         string
@@ -34,47 +31,106 @@ var MockRepoData = []MockRepo{
 		Branches: []MockBranch{
 			{
 				Name:     "main",
-				CommitID: graphql.ID("0000003"),
+				CommitID: "0000003",
 			},
 			{
 				Name:     "dev",
-				CommitID: graphql.ID("0000002"),
+				CommitID: "0000002",
 			},
 		},
 		Commits: []MockCommit{
 			{
-				ID: graphql.ID("0000001"),
+				ID:  "0000001",
+				Msg: "Msg 1",
 				Runs: []MockRun{
 					{
-						ID:             graphql.ID("1"),
-						StartTimestamp: 0,
-						Duration:       100,
+						Num:            1,
+						StartTimestamp: 1604701788,
+						Duration:       121,
 						Status:         "SUCCEED",
 						Log:            "",
 					},
 				},
 			},
 			{
-				ID: graphql.ID("0000002"),
+				ID:  "0000002",
+				Msg: "Msg 2",
 				Runs: []MockRun{
 					{
-						ID:             graphql.ID("2"),
-						StartTimestamp: 100,
-						Duration:       100,
+						Num:            2,
+						StartTimestamp: 1604702758,
+						Duration:       412,
 						Status:         "FAILED",
 						Log:            "",
 					},
 				},
 			},
 			{
-				ID: graphql.ID("0000003"),
+				ID:  "0000003",
+				Msg: "Msg 3",
 				Runs: []MockRun{
 					{
-						ID:             graphql.ID("3"),
-						StartTimestamp: 200,
-						Duration:       100,
+						Num:            3,
+						StartTimestamp: 1604703781,
+						Duration:       231,
 						Status:         "IN_PROGRESS",
+						Log: `go run xxxxxx
+run 3 succeed!`,
+					},
+				},
+			},
+		},
+	},
+	{
+		Name: "test_repo_b",
+		Branches: []MockBranch{
+			{
+				Name:     "main",
+				CommitID: "0000006",
+			},
+			{
+				Name:     "dev",
+				CommitID: "0000005",
+			},
+		},
+		Commits: []MockCommit{
+			{
+				ID:  "0000004",
+				Msg: "Msg 4",
+				Runs: []MockRun{
+					{
+						Num:            1,
+						StartTimestamp: 1604704281,
+						Duration:       321,
+						Status:         "SUCCEED",
 						Log:            "",
+					},
+				},
+			},
+			{
+				ID:  "0000005",
+				Msg: "Msg 5",
+				Runs: []MockRun{
+					{
+						Num:            2,
+						StartTimestamp: 1604704681,
+						Duration:       213,
+						Status:         "FAILED",
+						Log:            "",
+					},
+				},
+			},
+			{
+				ID:  "0000006",
+				Msg: "Msg 6",
+				Runs: []MockRun{
+					{
+						Num:            3,
+						StartTimestamp: 1604704981,
+						Duration:       315,
+						Status:         "IN_PROGRESS",
+						Log: `go run xxxxxx
+run 6 succeed!`,
 					},
 				},
 			},
@@ -91,14 +147,20 @@ func GetRepoNames() []string {
 }
 
 type RepoInfo struct {
-	Name      string
-	Branches  []BranchInfo
-	CommitIDs []graphql.ID
+	Name        string
+	Branches    []BranchInfo
+	CommitHashs []string
 }
 
 type BranchInfo struct {
-	Name     string
-	CommitID graphql.ID
+	Name       string
+	CommitHash string
+}
+
+type CommitInfo struct {
+	ID   string
+	Msg  string
+	Runs []MockRun
 }
 
 func GetRepoInfo(name string) *RepoInfo {
@@ -108,10 +170,13 @@ func GetRepoInfo(name string) *RepoInfo {
 				Name: name,
 			}
 			for _, b := range repo.Branches {
-				res.Branches = append(res.Branches, BranchInfo{Name: b.Name, CommitID: b.CommitID})
+				res.Branches = append(res.Branches, BranchInfo{
+					Name:       b.Name,
+					CommitHash: b.CommitID,
+				})
 			}
 			for _, c := range repo.Commits {
-				res.CommitIDs = append(res.CommitIDs, c.ID)
+				res.CommitHashs = append(res.CommitHashs, c.ID)
 			}
 			return &res
 		}
@@ -119,12 +184,16 @@ func GetRepoInfo(name string) *RepoInfo {
 	return nil
 }
 
-func GetCommitInfo(repoName string, commitID graphql.ID) *[]MockRun {
+func GetCommitInfo(repoName string, commitID string) *CommitInfo {
 	for _, repo := range MockRepoData {
 		if repo.Name == repoName {
 			for _, c := range repo.Commits {
 				if c.ID == commitID {
-					return &c.Runs
+					return &CommitInfo{
+						ID:   c.ID,
+						Msg:  c.Msg,
+						Runs: c.Runs,
+					}
 				}
 			}
 		}

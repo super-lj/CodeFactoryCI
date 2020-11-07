@@ -7,23 +7,28 @@ type Query {
 }
 
 type Repo {
+  id: ID!
   name: String!
-  branchesConnection(first: Int, after: String): RepoBranchesConnection!
+  branchesConnection(first: Int, after: ID): RepoBranchesConnection!
   commitsConnection(first: Int, after: ID): RepoCommitsConnection!
 }
 
 type Branch {
+  id: ID!
   name: String!
   commit: Commit!
 }
 
 type Commit {
   id: ID!
+  hash: String!
+  msg: String!
   runsConnection(first: Int, after: ID): CommitRunsConnection!
 }
 
 type Run {
   id: ID!
+  num: Int!
   startTimestamp: Int!
   duration: Int!
   status: Status!
@@ -42,7 +47,7 @@ type RepoBranchesConnection {
 }
 
 type RepoBranchesEdge {
-  cursor: String!
+  cursor: ID!
   node: Branch!
 }
 

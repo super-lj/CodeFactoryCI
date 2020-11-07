@@ -3,9 +3,14 @@ package resolver
 import graphql "github.com/graph-gophers/graphql-go"
 
 type BranchResolver struct {
-	name     string
-	repoName string
-	commitID graphql.ID
+	id         graphql.ID
+	name       string
+	repoName   string
+	commitHash string
+}
+
+func (r *BranchResolver) Id() graphql.ID {
+	return r.id
 }
 
 func (r *BranchResolver) Name() string {
@@ -14,7 +19,8 @@ func (r *BranchResolver) Name() string {
 
 func (r *BranchResolver) Commit() *CommitResolver {
 	return &CommitResolver{
+		id:       graphql.ID(r.repoName + " " + r.commitHash),
 		repoName: r.repoName,
-		id:       r.commitID,
+		hash:     r.commitHash,
 	}
 }

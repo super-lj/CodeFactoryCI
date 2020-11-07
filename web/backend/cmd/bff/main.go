@@ -8,6 +8,7 @@ import (
 
 	graphql "github.com/graph-gophers/graphql-go"
 	"github.com/graph-gophers/graphql-go/relay"
+	"github.com/rs/cors"
 )
 
 func main() {
@@ -17,7 +18,7 @@ func main() {
 		panic(err)
 	}
 	s := graphql.MustParseSchema(string(bstr), &resolver.RootResolver{})
-	http.Handle("/query", &relay.Handler{Schema: s})
+	http.Handle("/query", cors.Default().Handler(&relay.Handler{Schema: s}))
 
 	// register graphql playground handler
 	http.Handle("/", http.FileServer(http.Dir("./playground")))

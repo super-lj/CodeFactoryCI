@@ -6,7 +6,6 @@ import (
 	"web-backend/mock"
 
 	"github.com/graph-gophers/dataloader"
-	graphql "github.com/graph-gophers/graphql-go"
 )
 
 // batch functions
@@ -25,7 +24,7 @@ var getCommitInfoBatchFn = func(ctx context.Context, keys dataloader.Keys) []*da
 		if len(strs) != 2 {
 			return []*dataloader.Result{}
 		}
-		commit_info := mock.GetCommitInfo(strs[0], graphql.ID(strs[1]))
+		commit_info := mock.GetCommitInfo(strs[0], strs[1])
 		results = append(results, &dataloader.Result{Data: commit_info})
 	}
 	return results
