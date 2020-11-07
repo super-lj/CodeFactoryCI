@@ -8,6 +8,7 @@ idl/.idea
 web/frontend/node_modules
 web/frontend/.pnp
 web/frontend/.pnp.js
+web/frontend/.vscode
 web/frontend/coverage
 web/frontend/build
 web/backend/bff
