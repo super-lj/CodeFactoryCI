@@ -4,6 +4,7 @@ import graphql "github.com/graph-gophers/graphql-go"
 
 type RunResolver struct {
 	id             graphql.ID
+	num            int32
 	startTimestamp int32
 	duration       int32
 	status         string
@@ -12,6 +13,10 @@ type RunResolver struct {
 
 func (r *RunResolver) Id() graphql.ID {
 	return r.id
+}
+
+func (r *RunResolver) Num() int32 {
+	return r.num
 }
 
 func (r *RunResolver) StartTimestamp() int32 {

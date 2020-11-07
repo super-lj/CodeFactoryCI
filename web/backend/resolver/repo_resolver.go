@@ -9,7 +9,12 @@ import (
 )
 
 type RepoResolver struct {
+	id   graphql.ID
 	name string
+}
+
+func (r *RepoResolver) Id() graphql.ID {
+	return r.id
 }
 
 func (r *RepoResolver) Name() string {
@@ -17,25 +22,26 @@ func (r *RepoResolver) Name() string {
 }
 
 func (r *RepoResolver) BranchesConnection(args struct {
-	First *int
-	After *string
+	First *int32
+	After *graphql.ID
 }) (*RepoBranchesConnectionResolver, error) {
 	// fetch repo info
 	res, err := RepoInfoloader.Load(context.TODO(), dataloader.StringKey(r.name))()
 	if err != nil {
 		return nil, err
 	}
-	if res == nil {
+	if res.(*mock.RepoInfo) == nil {
 		return nil, nil
 	}
 
 	// parse retrieved info
 	info := res.(*mock.RepoInfo)
 	for i, br := range info.Branches {
-		if args.After == nil || br.Name == *args.After {
+		brID := graphql.ID(r.name + " " + br.Name)
+		if args.After == nil || brID == *args.After {
 			end := len(info.Branches)
 			if args.First != nil {
-				end = i + *args.First
+				end = i + int(*args.First)
 			}
 			if end > len(info.Branches) {
 				end = len(info.Branches)
@@ -44,12 +50,14 @@ func (r *RepoResolver) BranchesConnection(args struct {
 				pageInfo: &PageInfoResolver{end != len(info.Branches)},
 			}
 			for _, b := range info.Branches[i:end] {
+				brID := graphql.ID(r.name + " " + b.Name)
 				repoBrRx.edges = append(repoBrRx.edges, &RepoBranchesEdgeResolver{
-					cursor: b.Name,
+					cursor: brID,
 					node: &BranchResolver{
-						name:     b.Name,
-						repoName: r.name,
-						commitID: b.CommitID,
+						id:         brID,
+						name:       b.Name,
+						repoName:   r.name,
+						commitHash: b.CommitHash,
 					},
 				})
 			}
@@ -60,7 +68,7 @@ func (r *RepoResolver) BranchesConnection(args struct {
 }
 
 func (r *RepoResolver) CommitsConnection(args struct {
-	First *int
+	First *int32
 	After *graphql.ID
 }) (*RepoCommitsConnectionResolver, error) {
 	// fetch repo info
@@ -68,30 +76,33 @@ func (r *RepoResolver) CommitsConnection(args struct {
 	if err != nil {
 		return nil, err
 	}
-	if res == nil {
+	if res.(*mock.RepoInfo) == nil {
 		return nil, nil
 	}
 
 	// parse retrieved info
 	info := res.(*mock.RepoInfo)
-	for i, commitID := range info.CommitIDs {
+	for i, hash := range info.CommitHashs {
+		commitID := graphql.ID(info.Name + " " + hash)
 		if args.After == nil || commitID == *args.After {
-			end := len(info.CommitIDs)
+			end := len(info.CommitHashs)
 			if args.First != nil {
-				end = i + *args.First
+				end = i + int(*args.First)
 			}
-			if end > len(info.CommitIDs) {
-				end = len(info.CommitIDs)
+			if end > len(info.CommitHashs) {
+				end = len(info.CommitHashs)
 			}
 			repoCmRx := &RepoCommitsConnectionResolver{
 				pageInfo: &PageInfoResolver{end != len(info.Branches)},
 			}
-			for _, commitID := range info.CommitIDs[i:end] {
+			for _, hash := range info.CommitHashs[i:end] {
+				commitID := graphql.ID(info.Name + " " + hash)
 				repoCmRx.edges = append(repoCmRx.edges, &RepoCommitsEdgeResolver{
 					cursor: commitID,
 					node: &CommitResolver{
-						repoName: r.name,
 						id:       commitID,
+						repoName: r.name,
+						hash:     hash,
 					},
 				})
 			}

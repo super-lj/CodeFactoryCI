@@ -1,11 +1,13 @@
 package resolver
 
+import "github.com/graph-gophers/graphql-go"
+
 type RepoBranchesEdgeResolver struct {
-	cursor string
+	cursor graphql.ID
 	node   *BranchResolver
 }
 
-func (r *RepoBranchesEdgeResolver) Cursor() string {
+func (r *RepoBranchesEdgeResolver) Cursor() graphql.ID {
 	return r.cursor
 }
 
