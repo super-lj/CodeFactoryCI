@@ -12,9 +12,10 @@ type MockBranch struct {
 }
 
 type MockCommit struct {
-	ID   string
-	Msg  string
-	Runs []MockRun
+	ID     string
+	Msg    string
+	Author string
+	Runs   []MockRun
 }
 
 type MockRun struct {
@@ -40,8 +41,9 @@ var MockRepoData = []MockRepo{
 		},
 		Commits: []MockCommit{
 			{
-				ID:  "0000001",
-				Msg: "Msg 1",
+				ID:     "0000001",
+				Msg:    "Msg 1",
+				Author: "Peixuan Li",
 				Runs: []MockRun{
 					{
 						Num:            1,
@@ -53,8 +55,9 @@ var MockRepoData = []MockRepo{
 				},
 			},
 			{
-				ID:  "0000002",
-				Msg: "Msg 2",
+				ID:     "0000002",
+				Msg:    "Msg 2",
+				Author: "Peixuan Li",
 				Runs: []MockRun{
 					{
 						Num:            2,
@@ -66,8 +69,9 @@ var MockRepoData = []MockRepo{
 				},
 			},
 			{
-				ID:  "0000003",
-				Msg: "Msg 3",
+				ID:     "0000003",
+				Msg:    "Msg 3",
+				Author: "Peixuan Li",
 				Runs: []MockRun{
 					{
 						Num:            3,
@@ -95,8 +99,9 @@ run 3 succeed!`,
 		},
 		Commits: []MockCommit{
 			{
-				ID:  "0000004",
-				Msg: "Msg 4",
+				ID:     "0000004",
+				Msg:    "Msg 4",
+				Author: "Xingyou Ji",
 				Runs: []MockRun{
 					{
 						Num:            1,
@@ -108,8 +113,9 @@ run 3 succeed!`,
 				},
 			},
 			{
-				ID:  "0000005",
-				Msg: "Msg 5",
+				ID:     "0000005",
+				Msg:    "Msg 5",
+				Author: "Xingyou Ji",
 				Runs: []MockRun{
 					{
 						Num:            2,
@@ -121,8 +127,9 @@ run 3 succeed!`,
 				},
 			},
 			{
-				ID:  "0000006",
-				Msg: "Msg 6",
+				ID:     "0000006",
+				Msg:    "Msg 6",
+				Author: "Xingyou Ji",
 				Runs: []MockRun{
 					{
 						Num:            3,
@@ -158,9 +165,10 @@ type BranchInfo struct {
 }
 
 type CommitInfo struct {
-	ID   string
-	Msg  string
-	Runs []MockRun
+	ID     string
+	Msg    string
+	Author string
+	Runs   []MockRun
 }
 
 func GetRepoInfo(name string) *RepoInfo {
@@ -190,9 +198,10 @@ func GetCommitInfo(repoName string, commitID string) *CommitInfo {
 			for _, c := range repo.Commits {
 				if c.ID == commitID {
 					return &CommitInfo{
-						ID:   c.ID,
-						Msg:  c.Msg,
-						Runs: c.Runs,
+						ID:     c.ID,
+						Msg:    c.Msg,
+						Author: c.Author,
+						Runs:   c.Runs,
 					}
 				}
 			}

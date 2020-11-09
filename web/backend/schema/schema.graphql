@@ -23,6 +23,7 @@ type Commit {
   id: ID!
   hash: String!
   msg: String!
+  author: String!
   runsConnection(first: Int, after: ID): CommitRunsConnection!
 }
 
