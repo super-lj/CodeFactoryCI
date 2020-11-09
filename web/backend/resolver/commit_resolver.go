@@ -35,6 +35,17 @@ func (r *CommitResolver) Msg() (string, error) {
 	return res.(*mock.CommitInfo).Msg, nil
 }
 
+func (r *CommitResolver) Author() (string, error) {
+	// fetch commit info
+	fetchKey := fmt.Sprintf("%s,%s", r.repoName, r.hash)
+	res, err := CommitInfoloader.Load(context.TODO(), dataloader.StringKey(fetchKey))()
+	if err != nil {
+		return "", err
+	}
+
+	return res.(*mock.CommitInfo).Author, nil
+}
+
 func (r *CommitResolver) RunsConnection(args struct {
 	First *int32
 	After *graphql.ID
