@@ -10,8 +10,9 @@ import CloseIcon from "@material-ui/icons/Close";
 import UpdateIcon from "@material-ui/icons/Update";
 import TodayIcon from "@material-ui/icons/Today";
 import ScheduleIcon from "@material-ui/icons/Schedule";
+import PeopleIcon from "@material-ui/icons/People";
 
-import { SourceCommit, SourceBranch } from "mdi-material-ui";
+import { SourceCommit } from "mdi-material-ui";
 
 import { formatDistanceToNow, formatDuration } from "date-fns";
 
@@ -149,11 +150,13 @@ const useStyles = makeStyles((theme) => ({
   },
   codeBlock: {
     width: "100%",
+    fontFamily: "Fira Code",
+    fontSize: "large",
   },
 }));
 
 const GET_REPO_CURRENT_COMMIT = gql`
-  query GetRepoNames($repoName: String) {
+  query GetRepoCurrentCommit($repoName: String) {
     repos(name: $repoName) {
       name
       branchesConnection(first: 1) {
@@ -163,6 +166,7 @@ const GET_REPO_CURRENT_COMMIT = gql`
             commit {
               hash
               msg
+              author
               runsConnection(first: 1) {
                 edges {
                   node {
@@ -185,6 +189,7 @@ const GET_REPO_CURRENT_COMMIT = gql`
 export default function CurrentRun({ repoName }) {
   const { loading, error, data } = useQuery(GET_REPO_CURRENT_COMMIT, {
     variables: { repoName },
+    pollInterval: 500,
   });
   const classes = useStyles({ data });
 
@@ -204,6 +209,7 @@ export default function CurrentRun({ repoName }) {
                 commit: {
                   hash: commitID,
                   msg: commitMsg,
+                  author,
                   runsConnection: {
                     edges: [
                       {
@@ -299,14 +305,10 @@ export default function CurrentRun({ repoName }) {
                 </Typography>
               </Grid>
               <Grid item container xs={6} alignItems="center">
-                <SourceBranch />
+                <PeopleIcon />
                 <Typography variant="h5">
                   <span>&nbsp;&nbsp;</span>
-                  Branch
-                </Typography>
-                <Typography variant="h5">
-                  <span>&nbsp;&nbsp;</span>
-                  {branchName}
+                  {author}
                 </Typography>
               </Grid>
               <Grid item container xs={6} alignItems="center">
