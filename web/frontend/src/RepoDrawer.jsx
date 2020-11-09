@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 
 import Drawer from "@material-ui/core/Drawer";
 import Toolbar from "@material-ui/core/Toolbar";
-import { CircularProgress, Grid, makeStyles } from "@material-ui/core";
+import { Grid, makeStyles } from "@material-ui/core";
 
 import { useQuery, gql, useReactiveVar } from "@apollo/client";
 
@@ -25,17 +25,78 @@ const useStyle = makeStyles((theme) => ({
   },
 }));
 
-const GET_REPO_NAMES = gql`
-  query GetRepoNames {
+const GET_REPO_BASIC_INFO = gql`
+  query GetRepoBasicInfo {
     repos {
       name
+      branchesConnection(first: 1) {
+        edges {
+          node {
+            commit {
+              runsConnection(first: 1) {
+                edges {
+                  node {
+                    num
+                    startTimestamp
+                    duration
+                    status
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 `;
 
+const renderRepoCards = ({ loading, error, data, selectedRepoName }) => {
+  // check if data is valid and get all needed fields
+  if (loading || error) {
+    return <></>;
+  }
+  return data.repos.map((repo) => {
+    const {
+      name,
+      branchesConnection: {
+        edges: [
+          {
+            node: {
+              commit: {
+                runsConnection: {
+                  edges: [
+                    {
+                      node: { num, startTimestamp, duration, status },
+                    },
+                  ],
+                },
+              },
+            },
+          },
+        ],
+      },
+    } = repo;
+    return (
+      <Grid item xs key={name}>
+        <RepoInfoCard
+          repoName={name}
+          selected={selectedRepoName === name}
+          status={status}
+          runNum={num}
+          duration={duration}
+          startTimestamp={startTimestamp}
+        />
+      </Grid>
+    );
+  });
+};
+
 export default function RepoDrawer() {
   const classes = useStyle();
-  const { loading, error, data } = useQuery(GET_REPO_NAMES);
+  const { loading, error, data } = useQuery(GET_REPO_BASIC_INFO, {
+    pollInterval: 500,
+  });
   const selectedRepoName = useReactiveVar(repoNameVar);
 
   useEffect(() => {
@@ -43,29 +104,6 @@ export default function RepoDrawer() {
       repoNameVar(data.repos[0].name);
     }
   });
-
-  const renderRepoCards = () => {
-    if (loading) {
-      return (
-        <Grid container item xs justify="center" alignItems="center">
-          <CircularProgress />
-        </Grid>
-      );
-    }
-    if (error) {
-      return <></>;
-    }
-    return data.repos.map((r) => {
-      return (
-        <Grid item xs key={r.name}>
-          <RepoInfoCard
-            repoName={r.name}
-            selected={selectedRepoName === r.name}
-          />
-        </Grid>
-      );
-    });
-  };
 
   return (
     <Drawer
@@ -75,7 +113,7 @@ export default function RepoDrawer() {
     >
       <Toolbar />
       <Grid container className={classes.grid} spacing={2} direction="column">
-        {renderRepoCards()}
+        {renderRepoCards({ loading, error, data, selectedRepoName })}
       </Grid>
     </Drawer>
   );

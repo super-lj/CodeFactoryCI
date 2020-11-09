@@ -13,6 +13,7 @@ import { useReactiveVar } from "@apollo/client";
 
 import { repoNameVar } from "./ApolloClient";
 import CurrentRun from "./Current/CurrentRun";
+import Branches from "./Branches/Branches";
 
 const useStyles = makeStyles((theme) => ({
   cardContent: {
@@ -49,13 +50,7 @@ export default function RepoDetail() {
       case 0:
         return <CurrentRun repoName={repoName} />;
       case 1:
-        return (
-          <Grid item container xs>
-            <Paper>
-              <Typography variant="h4">Branches</Typography>
-            </Paper>
-          </Grid>
-        );
+        return <Branches repoName={repoName} />;
       case 2:
         return (
           <Grid item container xs>
