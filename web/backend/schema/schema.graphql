@@ -11,12 +11,14 @@ type Repo {
   name: String!
   branchesConnection(first: Int, after: ID): RepoBranchesConnection!
   commitsConnection(first: Int, after: ID): RepoCommitsConnection!
+  runsConnection(first: Int, after: ID): RepoRunsConnection!
 }
 
 type Branch {
   id: ID!
   name: String!
   commit: Commit!
+  runsConnection(first: Int, after: ID): BranchRunsConnection!
 }
 
 type Commit {
@@ -34,6 +36,8 @@ type Run {
   duration: Int!
   status: Status!
   log: String!
+  branch: Branch!
+  commit: Commit!
 }
 
 enum Status {
@@ -60,6 +64,26 @@ type RepoCommitsConnection {
 type RepoCommitsEdge {
   cursor: ID!
   node: Commit!
+}
+
+type RepoRunsConnection {
+  pageInfo: PageInfo!
+  edges: [RepoRunsEdge!]!
+}
+
+type RepoRunsEdge {
+  cursor: ID!
+  node: Run!
+}
+
+type BranchRunsConnection {
+  pageInfo: PageInfo!
+  edges: [BranchRunsEdge!]!
+}
+
+type BranchRunsEdge {
+  cursor: ID!
+  node: Run!
 }
 
 type CommitRunsConnection {

@@ -1,8 +1,9 @@
 package resolver
 
 import (
-	"web-backend/mock"
+	"context"
 
+	"github.com/graph-gophers/dataloader"
 	"github.com/graph-gophers/graphql-go"
 )
 
@@ -16,7 +17,11 @@ func (r *RootResolver) Repos(args struct{ Name *string }) []*RepoResolver {
 			name: *args.Name,
 		})
 	} else {
-		for _, name := range mock.GetRepoNames() {
+		res, err := RepoNameloader.Load(context.TODO(), dataloader.StringKey(""))()
+		if err != nil {
+			return []*RepoResolver{}
+		}
+		for _, name := range res.([]string) {
 			repoRxs = append(repoRxs, &RepoResolver{
 				id:   graphql.ID(name),
 				name: name,
