@@ -31,7 +31,6 @@ func (r *CommitResolver) Msg() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return res.(*mock.CommitInfo).Msg, nil
 }
 
@@ -42,7 +41,6 @@ func (r *CommitResolver) Author() (string, error) {
 	if err != nil {
 		return "", err
 	}
-
 	return res.(*mock.CommitInfo).Author, nil
 }
 
@@ -59,39 +57,47 @@ func (r *CommitResolver) RunsConnection(args struct {
 	if res.(*mock.CommitInfo) == nil {
 		return nil, nil
 	}
+	commitInfo := res.(*mock.CommitInfo)
 
-	// parse retrieved info
-	runs := res.(*mock.CommitInfo).Runs
-	for i, run := range runs {
-		runId := graphql.ID(r.repoName + " " + r.hash + " " + strconv.Itoa(int(run.Num)))
-		if args.After == nil || runId == *args.After {
-			end := len(runs)
-			if args.First != nil {
-				end = i + int(*args.First)
+	// calculate the start and end
+	start := 0
+	if args.After != nil {
+		for ; start < len(commitInfo.RunNums); start++ {
+			runID := graphql.ID(r.repoName + " " + strconv.Itoa(int(commitInfo.RunNums[start])))
+			if runID == *args.After {
+				start++
+				break
 			}
-			if end > len(runs) {
-				end = len(runs)
-			}
-			commitRunsRx := &CommitRunsConnectionResolver{
-				pageInfo: &PageInfoResolver{end != len(runs)},
-			}
-			for _, run := range runs[i:end] {
-				runId := graphql.ID(r.repoName + " " + r.hash + " " + strconv.Itoa(int(run.Num)))
-				commitRunsRx.edges = append(commitRunsRx.edges, &CommitRunsEdgeResolver{
-					cursor: runId,
-					node: &RunResolver{
-						id:             runId,
-						num:            run.Num,
-						startTimestamp: run.StartTimestamp,
-						duration:       run.Duration,
-						status:         run.Status,
-						log:            run.Log,
-					},
-				})
-			}
-			return commitRunsRx, nil
 		}
 	}
+	end := len(commitInfo.RunNums)
+	if args.First != nil {
+		if *args.First < 0 {
+			return nil, nil
+		}
+		end = start + int(*args.First)
+	}
+	if end > len(commitInfo.RunNums) {
+		end = len(commitInfo.RunNums)
+	}
 
-	return nil, nil
+	// build next level resolver
+	cmRunsRx := &CommitRunsConnectionResolver{
+		pageInfo: &PageInfoResolver{end != len(commitInfo.RunNums)},
+	}
+	if start >= end {
+		return cmRunsRx, nil
+	}
+	for _, num := range commitInfo.RunNums[start:end] {
+		runId := graphql.ID(r.repoName + " " + strconv.Itoa(int(num)))
+		cmRunsRx.edges = append(cmRunsRx.edges, &CommitRunsEdgeResolver{
+			cursor: runId,
+			node: &RunResolver{
+				id:       runId,
+				repoName: r.repoName,
+				num:      num,
+			},
+		})
+	}
+	return cmRunsRx, nil
 }

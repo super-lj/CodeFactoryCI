@@ -1,211 +1,278 @@
 package mock
 
-type MockRepo struct {
-	Name     string
-	Branches []MockBranch
-	Commits  []MockCommit
-}
-
-type MockBranch struct {
-	Name     string
-	CommitID string
-}
-
-type MockCommit struct {
-	ID     string
-	Msg    string
-	Author string
-	Runs   []MockRun
-}
-
-type MockRun struct {
-	Num            int32
-	StartTimestamp int32
-	Duration       int32
-	Status         string
-	Log            string
-}
-
-var MockRepoData = []MockRepo{
-	{
-		Name: "test_repo_a",
-		Branches: []MockBranch{
-			{
-				Name:     "main",
-				CommitID: "0000003",
-			},
-			{
-				Name:     "dev",
-				CommitID: "0000002",
-			},
-		},
-		Commits: []MockCommit{
-			{
-				ID:     "0000001",
-				Msg:    "Msg 1",
-				Author: "Peixuan Li",
-				Runs: []MockRun{
-					{
-						Num:            1,
-						StartTimestamp: 1604701788,
-						Duration:       121,
-						Status:         "SUCCEED",
-						Log:            "",
-					},
-				},
-			},
-			{
-				ID:     "0000002",
-				Msg:    "Msg 2",
-				Author: "Peixuan Li",
-				Runs: []MockRun{
-					{
-						Num:            2,
-						StartTimestamp: 1604702758,
-						Duration:       412,
-						Status:         "FAILED",
-						Log:            "",
-					},
-				},
-			},
-			{
-				ID:     "0000003",
-				Msg:    "Msg 3",
-				Author: "Peixuan Li",
-				Runs: []MockRun{
-					{
-						Num:            3,
-						StartTimestamp: 1604703781,
-						Duration:       231,
-						Status:         "IN_PROGRESS",
-						Log: `go run xxxxxx
-run 3 succeed!`,
-					},
-				},
-			},
-		},
-	},
-	{
-		Name: "test_repo_b",
-		Branches: []MockBranch{
-			{
-				Name:     "main",
-				CommitID: "0000006",
-			},
-			{
-				Name:     "dev",
-				CommitID: "0000005",
-			},
-		},
-		Commits: []MockCommit{
-			{
-				ID:     "0000004",
-				Msg:    "Msg 4",
-				Author: "Xingyou Ji",
-				Runs: []MockRun{
-					{
-						Num:            1,
-						StartTimestamp: 1604704281,
-						Duration:       321,
-						Status:         "SUCCEED",
-						Log:            "",
-					},
-				},
-			},
-			{
-				ID:     "0000005",
-				Msg:    "Msg 5",
-				Author: "Xingyou Ji",
-				Runs: []MockRun{
-					{
-						Num:            2,
-						StartTimestamp: 1604704681,
-						Duration:       213,
-						Status:         "FAILED",
-						Log:            "",
-					},
-				},
-			},
-			{
-				ID:     "0000006",
-				Msg:    "Msg 6",
-				Author: "Xingyou Ji",
-				Runs: []MockRun{
-					{
-						Num:            3,
-						StartTimestamp: 1604704981,
-						Duration:       315,
-						Status:         "IN_PROGRESS",
-						Log: `go run xxxxxx
-run 6 succeed!`,
-					},
-				},
-			},
-		},
-	},
-}
-
-func GetRepoNames() []string {
-	var res = []string{}
-	for _, repo := range MockRepoData {
-		res = append(res, repo.Name)
-	}
-	return res
-}
-
+// define mock data stuctures
 type RepoInfo struct {
 	Name        string
-	Branches    []BranchInfo
+	BranchNames []string
 	CommitHashs []string
+	MaxRunNum   int32
 }
 
 type BranchInfo struct {
 	Name       string
 	CommitHash string
+	RunNums    []int32
 }
 
 type CommitInfo struct {
-	ID     string
-	Msg    string
-	Author string
-	Runs   []MockRun
+	Hash    string
+	Msg     string
+	Author  string
+	RunNums []int32
+}
+
+type RunInfo struct {
+	Num            int32
+	StartTimestamp int32
+	Duration       int32
+	Status         string
+	Log            string
+	BranchName     string
+	CommitHash     string
+}
+
+// mock DB tables
+var mockRepoDB = []RepoInfo{
+	{
+		Name:        "test_repo_a",
+		BranchNames: []string{"main", "dev", "dev_2"},
+		CommitHashs: []string{"01df63c", "29eea5d", "f26fbd4"},
+		MaxRunNum:   3,
+	},
+	{
+		Name:        "test_repo_b",
+		BranchNames: []string{"main", "dev_b", "dev_b_2"},
+		CommitHashs: []string{"1741c90", "1ff945d", "55347bc"},
+		MaxRunNum:   3,
+	},
+}
+
+var mockBranchDB = map[string][]BranchInfo{
+	"test_repo_a": {
+		{
+			Name:       "main",
+			CommitHash: "01df63c",
+			RunNums:    []int32{3},
+		},
+		{
+			Name:       "dev",
+			CommitHash: "29eea5d",
+			RunNums:    []int32{2},
+		},
+		{
+			Name:       "dev_2",
+			CommitHash: "f26fbd4",
+			RunNums:    []int32{1},
+		},
+	},
+	"test_repo_b": {
+		{
+			Name:       "main",
+			CommitHash: "1741c90",
+			RunNums:    []int32{3},
+		},
+		{
+			Name:       "dev_b",
+			CommitHash: "1ff945d",
+			RunNums:    []int32{2},
+		},
+		{
+			Name:       "dev_b_2",
+			CommitHash: "55347bc",
+			RunNums:    []int32{1},
+		},
+	},
+}
+
+var mockCommitDB = map[string][]CommitInfo{
+	"test_repo_a": {
+		{
+			Hash:    "01df63c",
+			Msg:     "Commit 01df63c Msg.",
+			Author:  "Peixuan Li",
+			RunNums: []int32{3},
+		},
+		{
+			Hash:    "29eea5d",
+			Msg:     "Commit 29eea5d Msg.",
+			Author:  "Peixuan Li",
+			RunNums: []int32{2},
+		},
+		{
+			Hash:    "f26fbd4",
+			Msg:     "Commit f26fbd4 Msg.",
+			Author:  "Peixuan Li",
+			RunNums: []int32{1},
+		},
+	},
+	"test_repo_b": {
+		{
+			Hash:    "1741c90",
+			Msg:     "Commit 1741c90 Msg.",
+			Author:  "Xingyou Ji",
+			RunNums: []int32{3},
+		},
+		{
+			Hash:    "1ff945d",
+			Msg:     "Commit 1ff945d Msg.",
+			Author:  "Xingyou Ji",
+			RunNums: []int32{2},
+		},
+		{
+			Hash:    "55347bc",
+			Msg:     "Commit 55347bc Msg.",
+			Author:  "Xingyou Ji",
+			RunNums: []int32{1},
+		},
+	},
+}
+
+var mockRunDB = map[string][]RunInfo{
+	"test_repo_a": {
+		{
+			Num:            3,
+			StartTimestamp: 1605053500,
+			Duration:       142,
+			Status:         "IN_PROGRESS",
+			BranchName:     "main",
+			CommitHash:     "01df63c",
+			Log: `go run xxxxxx
+branch main commit 01df63c run 3 succeed!`,
+		},
+		{
+			Num:            2,
+			StartTimestamp: 1605053200,
+			Duration:       212,
+			Status:         "SUCCEED",
+			BranchName:     "dev",
+			CommitHash:     "29eea5d",
+			Log:            ``,
+		},
+		{
+			Num:            1,
+			StartTimestamp: 1605053000,
+			Duration:       123,
+			Status:         "FAILED",
+			BranchName:     "dev_2",
+			CommitHash:     "f26fbd4",
+			Log:            ``,
+		},
+	},
+	"test_repo_b": {
+		{
+			Num:            3,
+			StartTimestamp: 1605053500,
+			Duration:       142,
+			Status:         "IN_PROGRESS",
+			BranchName:     "main",
+			CommitHash:     "1741c90",
+			Log: `go run xxxxxx
+branch main commit 1741c90 run 3 succeed!`,
+		},
+		{
+			Num:            2,
+			StartTimestamp: 1605053200,
+			Duration:       212,
+			Status:         "SUCCEED",
+			Log:            ``,
+			BranchName:     "dev_b",
+			CommitHash:     "1ff945d",
+		},
+		{
+			Num:            1,
+			StartTimestamp: 1605053000,
+			Duration:       123,
+			Status:         "FAILED",
+			Log:            ``,
+			BranchName:     "dev_b_2",
+			CommitHash:     "55347bc",
+		},
+	},
+}
+
+// mock Cache by map
+var mockRepoCache = map[string]RepoInfo{}
+var mockBranchCache = map[string]map[string]BranchInfo{}
+var mockCommitCache = map[string]map[string]CommitInfo{}
+var mockRunCache = map[string]map[int32]RunInfo{}
+
+func init() {
+	// init Repo Cache
+	for _, repo := range mockRepoDB {
+		mockRepoCache[repo.Name] = repo
+	}
+	// init Branch Cache
+	for repoName, branches := range mockBranchDB {
+		mockBranchCache[repoName] = make(map[string]BranchInfo)
+		for _, br := range branches {
+			mockBranchCache[repoName][br.Name] = br
+		}
+	}
+	// init Commit Cache
+	for repoName, commits := range mockCommitDB {
+		mockCommitCache[repoName] = make(map[string]CommitInfo)
+		for _, c := range commits {
+			mockCommitCache[repoName][c.Hash] = c
+		}
+	}
+	// init Run Cache
+	for repoName, runs := range mockRunDB {
+		mockRunCache[repoName] = make(map[int32]RunInfo)
+		for _, r := range runs {
+			mockRunCache[repoName][r.Num] = r
+		}
+	}
+}
+
+// mock RPC interfaces
+func GetRepoNames() []string {
+	var res = []string{}
+	for _, repo := range mockRepoDB {
+		res = append(res, repo.Name)
+	}
+	return res
 }
 
 func GetRepoInfo(name string) *RepoInfo {
-	for _, repo := range MockRepoData {
-		if repo.Name == name {
-			res := RepoInfo{
-				Name: name,
-			}
-			for _, b := range repo.Branches {
-				res.Branches = append(res.Branches, BranchInfo{
-					Name:       b.Name,
-					CommitHash: b.CommitID,
-				})
-			}
-			for _, c := range repo.Commits {
-				res.CommitHashs = append(res.CommitHashs, c.ID)
-			}
-			return &res
-		}
+	repo, ok := mockRepoCache[name]
+	if !ok {
+		return nil
 	}
-	return nil
+	return &repo
 }
 
-func GetCommitInfo(repoName string, commitID string) *CommitInfo {
-	for _, repo := range MockRepoData {
-		if repo.Name == repoName {
-			for _, c := range repo.Commits {
-				if c.ID == commitID {
-					return &CommitInfo{
-						ID:     c.ID,
-						Msg:    c.Msg,
-						Author: c.Author,
-						Runs:   c.Runs,
-					}
-				}
-			}
-		}
+func GetBranchInfo(repoName string, branchName string) *BranchInfo {
+	branchsMap, repoNameOK := mockBranchCache[repoName]
+	if !repoNameOK {
+		return nil
 	}
-	return nil
+	branch, branchNameOK := branchsMap[branchName]
+	if !branchNameOK {
+		return nil
+	}
+	return &branch
+}
+
+func GetCommitInfo(repoName string, commitHash string) *CommitInfo {
+	commitsMap, repoNameOK := mockCommitCache[repoName]
+	if !repoNameOK {
+		return nil
+	}
+	commit, commmitHashOK := commitsMap[commitHash]
+	if !commmitHashOK {
+		return nil
+	}
+	return &commit
+}
+
+func GetRunInfo(repoName string, runNum int32) *RunInfo {
+	runsMap, repoNameOK := mockRunCache[repoName]
+	if !repoNameOK {
+		return nil
+	}
+	run, runNumOK := runsMap[runNum]
+	if !runNumOK {
+		return nil
+	}
+	return &run
 }
