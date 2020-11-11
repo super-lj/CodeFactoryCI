@@ -37,14 +37,12 @@ const useStyles = makeStyles((theme) => ({
               edges: [
                 {
                   node: {
-                    commit: {
-                      runsConnection: {
-                        edges: [
-                          {
-                            node: { status },
-                          },
-                        ],
-                      },
+                    runsConnection: {
+                      edges: [
+                        {
+                          node: { status },
+                        },
+                      ],
                     },
                   },
                 },
@@ -81,14 +79,12 @@ const useStyles = makeStyles((theme) => ({
               edges: [
                 {
                   node: {
-                    commit: {
-                      runsConnection: {
-                        edges: [
-                          {
-                            node: { status },
-                          },
-                        ],
-                      },
+                    runsConnection: {
+                      edges: [
+                        {
+                          node: { status },
+                        },
+                      ],
                     },
                   },
                 },
@@ -121,14 +117,12 @@ const useStyles = makeStyles((theme) => ({
               edges: [
                 {
                   node: {
-                    commit: {
-                      runsConnection: {
-                        edges: [
-                          {
-                            node: { status },
-                          },
-                        ],
-                      },
+                    runsConnection: {
+                      edges: [
+                        {
+                          node: { status },
+                        },
+                      ],
                     },
                   },
                 },
@@ -153,6 +147,9 @@ const useStyles = makeStyles((theme) => ({
     fontFamily: "Fira Code",
     fontSize: "large",
   },
+  typo: {
+    marginLeft: theme.spacing(2),
+  },
 }));
 
 const GET_REPO_CURRENT_COMMIT = gql`
@@ -167,15 +164,15 @@ const GET_REPO_CURRENT_COMMIT = gql`
               hash
               msg
               author
-              runsConnection(first: 1) {
-                edges {
-                  node {
-                    num
-                    startTimestamp
-                    duration
-                    status
-                    log
-                  }
+            }
+            runsConnection(first: 1) {
+              edges {
+                node {
+                  num
+                  startTimestamp
+                  duration
+                  status
+                  log
                 }
               }
             }
@@ -206,23 +203,19 @@ export default function CurrentRun({ repoName }) {
             {
               node: {
                 name: branchName,
-                commit: {
-                  hash: commitID,
-                  msg: commitMsg,
-                  author,
-                  runsConnection: {
-                    edges: [
-                      {
-                        node: {
-                          num: runID,
-                          startTimestamp,
-                          duration,
-                          status,
-                          log,
-                        },
+                commit: { hash: commitID, msg: commitMsg, author },
+                runsConnection: {
+                  edges: [
+                    {
+                      node: {
+                        num: runID,
+                        startTimestamp,
+                        duration,
+                        status,
+                        log,
                       },
-                    ],
-                  },
+                    },
+                  ],
                 },
               },
             },
@@ -260,7 +253,7 @@ export default function CurrentRun({ repoName }) {
                 <Typography variant="h5">
                   <b>{branchName}</b>
                 </Typography>
-                <Typography variant="h5">
+                <Typography variant="h6">
                   <span>&nbsp;&nbsp;</span>
                   {commitMsg}
                 </Typography>
@@ -273,30 +266,31 @@ export default function CurrentRun({ repoName }) {
                 className={classes.titleLine}
               >
                 <SourceCommit />
-                <Typography variant="h5">
-                  <span>&nbsp;&nbsp;</span>
+                <Typography variant="h6" className={classes.typo}>
                   <b>#{runID}</b>
-                </Typography>
-                <Typography variant="h5">
                   <span>&nbsp;&nbsp;</span>
-                  passed
+                  {((s) => {
+                    switch (s) {
+                      case "IN_PROGRESS":
+                        return "running";
+                      case "FAILED":
+                        return "failed";
+                      case "SUCCEED":
+                      default:
+                        return "passed";
+                    }
+                  })(status)}
                 </Typography>
               </Grid>
-              <Grid item container xs={6} alignItems="center">
+              <Grid item container xs={6} alignItems="center" wrap="nowrap">
                 <SourceCommit />
-                <Typography variant="h5">
-                  <span>&nbsp;&nbsp;</span>
-                  Commit
-                </Typography>
-                <Typography variant="h5">
-                  <span>&nbsp;&nbsp;</span>
+                <Typography variant="h6" className={classes.typo}>
                   {commitID}
                 </Typography>
               </Grid>
-              <Grid item container xs={6} alignItems="center">
+              <Grid item container xs={6} alignItems="center" wrap="nowrap">
                 <ScheduleIcon />
-                <Typography variant="h5">
-                  <span>&nbsp;&nbsp;</span>
+                <Typography variant="h6" className={classes.typo}>
                   {formatDuration({
                     hours: Math.floor(duration / 3600),
                     minutes: Math.floor(duration / 60) % 60,
@@ -304,17 +298,15 @@ export default function CurrentRun({ repoName }) {
                   })}
                 </Typography>
               </Grid>
-              <Grid item container xs={6} alignItems="center">
+              <Grid item container xs={6} alignItems="center" wrap="nowrap">
                 <PeopleIcon />
-                <Typography variant="h5">
-                  <span>&nbsp;&nbsp;</span>
+                <Typography variant="h6" className={classes.typo}>
                   {author}
                 </Typography>
               </Grid>
-              <Grid item container xs={6} alignItems="center">
+              <Grid item container xs={6} alignItems="center" wrap="nowrap">
                 <TodayIcon />
-                <Typography variant="h5">
-                  <span>&nbsp;&nbsp;</span>
+                <Typography variant="h6" className={classes.typo}>
                   {formatDistanceToNow(new Date(startTimestamp) * 1000, {
                     addSuffix: true,
                   })}

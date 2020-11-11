@@ -32,15 +32,13 @@ const GET_REPO_BASIC_INFO = gql`
       branchesConnection(first: 1) {
         edges {
           node {
-            commit {
-              runsConnection(first: 1) {
-                edges {
-                  node {
-                    num
-                    startTimestamp
-                    duration
-                    status
-                  }
+            runsConnection(first: 1) {
+              edges {
+                node {
+                  num
+                  startTimestamp
+                  duration
+                  status
                 }
               }
             }
@@ -63,14 +61,12 @@ const renderRepoCards = ({ loading, error, data, selectedRepoName }) => {
         edges: [
           {
             node: {
-              commit: {
-                runsConnection: {
-                  edges: [
-                    {
-                      node: { num, startTimestamp, duration, status },
-                    },
-                  ],
-                },
+              runsConnection: {
+                edges: [
+                  {
+                    node: { num, startTimestamp, duration, status },
+                  },
+                ],
               },
             },
           },
