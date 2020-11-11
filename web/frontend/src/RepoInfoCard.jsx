@@ -112,7 +112,6 @@ export default function RepoInfoCard({
             <Grid container item xs>
               <ScheduleIcon />
               <Typography className={classes.repoTitle}>
-                Duration:{" "}
                 {formatDuration({
                   hours: Math.floor(duration / 3600),
                   minutes: Math.floor(duration / 60) % 60,
@@ -123,7 +122,6 @@ export default function RepoInfoCard({
             <Grid container item xs>
               <TodayIcon />
               <Typography className={classes.repoTitle}>
-                Duration:{" "}
                 {formatDistanceToNow(new Date(startTimestamp) * 1000, {
                   addSuffix: true,
                 })}

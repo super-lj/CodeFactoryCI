@@ -7,8 +7,8 @@ import PropTypes from "prop-types";
 
 import BranchCard from "./BranchCard";
 
-const GET_REPO_BRANCH_INFO = gql`
-  query GetRepoNames($repoName: String) {
+const GET_REPO_BRANCHES_INFO = gql`
+  query GetRepoBranchesInfo($repoName: String) {
     repos(name: $repoName) {
       name
       branchesConnection {
@@ -37,7 +37,7 @@ const GET_REPO_BRANCH_INFO = gql`
 `;
 
 export default function Branches({ repoName }) {
-  const { loading, error, data } = useQuery(GET_REPO_BRANCH_INFO, {
+  const { loading, error, data } = useQuery(GET_REPO_BRANCHES_INFO, {
     variables: { repoName },
     pollInterval: 500,
   });

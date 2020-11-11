@@ -11,10 +11,11 @@ import CloseIcon from "@material-ui/icons/Close";
 import UpdateIcon from "@material-ui/icons/Update";
 import TodayIcon from "@material-ui/icons/Today";
 import PeopleIcon from "@material-ui/icons/People";
+import ScheduleIcon from "@material-ui/icons/Schedule";
 
 import { SourceCommit, Pound } from "mdi-material-ui";
 
-import { formatDistanceToNow } from "date-fns";
+import { formatDuration, formatDistanceToNow } from "date-fns";
 
 import PropTypes from "prop-types";
 
@@ -79,11 +80,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function BranchCard({
+export default function RunCard({
   brName,
   commitHash,
   commitMsg,
   runNum,
+  duration,
   startTimestamp,
   author,
   status,
@@ -96,27 +98,36 @@ export default function BranchCard({
       <CardContent className={classes.cardContent}>
         <Grid container item xs>
           <Grid container item xs={4} direction="column">
-            <Grid
-              container
-              item
-              xs
-              className={classes.branchNameLine}
-              alignItems="center"
-            >
-              {((s) => {
-                switch (s) {
-                  case "IN_PROGRESS":
-                    return <UpdateIcon className={classes.statusIcon} />;
-                  case "FAILED":
-                    return <CloseIcon className={classes.statusIcon} />;
-                  case "SUCCEED":
-                  default:
-                    return <CheckIcon className={classes.statusIcon} />;
-                }
-              })(status)}
-              <Typography variant="h5" className={classes.branchName}>
-                <b>{brName}</b>
-              </Typography>
+            <Grid container item xs alignItems="center">
+              <Grid
+                container
+                item
+                xs
+                className={classes.branchNameLine}
+                alignItems="center"
+                wrap="nowrap"
+              >
+                {((s) => {
+                  switch (s) {
+                    case "IN_PROGRESS":
+                      return <UpdateIcon className={classes.statusIcon} />;
+                    case "FAILED":
+                      return <CloseIcon className={classes.statusIcon} />;
+                    case "SUCCEED":
+                    default:
+                      return <CheckIcon className={classes.statusIcon} />;
+                  }
+                })(status)}
+                <Typography variant="h5" className={classes.branchName}>
+                  <b>{brName}</b>
+                </Typography>
+              </Grid>
+              <Grid container item xs alignItems="center" wrap="nowrap">
+                <PeopleIcon />
+                <Typography variant="h6" className={classes.branchName}>
+                  {author}
+                </Typography>
+              </Grid>
             </Grid>
             <Grid container item xs alignItems="center">
               <Typography variant="h6" className={classes.commitMsg}>
@@ -154,6 +165,16 @@ export default function BranchCard({
               </Typography>
             </Grid>
             <Grid container item xs={6} alignItems="center" wrap="nowrap">
+              <ScheduleIcon />
+              <Typography variant="h6" className={classes.branchName}>
+                {formatDuration({
+                  hours: Math.floor(duration / 3600),
+                  minutes: Math.floor(duration / 60) % 60,
+                  seconds: duration % 60,
+                })}
+              </Typography>
+            </Grid>
+            <Grid container item xs={6} alignItems="center" wrap="nowrap">
               <SourceCommit />
               <Typography variant="h6" className={classes.branchName}>
                 {commitHash}
@@ -167,12 +188,6 @@ export default function BranchCard({
                 })}
               </Typography>
             </Grid>
-            <Grid container item xs={6} alignItems="center" wrap="nowrap">
-              <PeopleIcon />
-              <Typography variant="h6" className={classes.branchName}>
-                {author}
-              </Typography>
-            </Grid>
           </Grid>
         </Grid>
       </CardContent>
@@ -180,11 +195,12 @@ export default function BranchCard({
   );
 }
 
-BranchCard.propTypes = {
+RunCard.propTypes = {
   brName: PropTypes.string.isRequired,
   commitHash: PropTypes.string.isRequired,
   commitMsg: PropTypes.string.isRequired,
   runNum: PropTypes.number.isRequired,
+  duration: PropTypes.number.isRequired,
   startTimestamp: PropTypes.number.isRequired,
   author: PropTypes.string.isRequired,
   status: PropTypes.string.isRequired,
