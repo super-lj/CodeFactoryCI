@@ -7,7 +7,7 @@ import (
 
 type Repo struct {
 	gorm.Model
-	Id      int                        `json:"id"`
+	Id      int64                      `json:"id"`
 	Name    string                     `json:"name"`
 	Url     string                     `json:"url"`
 	Status  enumeration.RepoStatusEnum `json:"status"`
