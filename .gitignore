@@ -4,6 +4,8 @@ ci/.idea
 # IDL
 idl/.idea
 
+/.idea
+
 # Web
 web/frontend/node_modules
 web/frontend/.pnp

@@ -1,21 +1,48 @@
 package dao
 
 import (
-	"ci/client"
 	"ci/domain"
 	"ci/enumeration"
+	"ci/manager"
 	"ci/util"
-	"strconv"
+	"code.byted.org/gopkg/gorm"
+	"code.byted.org/gopkg/logs"
+	"context"
+	"fmt"
 )
 
-func GetRepoInfoById(id int) (*domain.Repo, util.OpResult) {
+func GetRepoInfoById(ctx context.Context, id int64) (*domain.Repo, util.OpResult) {
 	var repo *domain.Repo
-	client.DBClient.First(repo, "id = ?", strconv.Itoa(id))
+	dbr, err := manager.CodeFactoryDBRead.GetConnection()
+	if err != nil {
+		logs.CtxError(ctx, "[GetRepoInfoById] get db connection err: %v", err)
+		return repo, util.NewOpResult(util.ErrDBConnect, "[GetRepoInfoById] get db connection err")
+	}
+	err = dbr.Where(fmt.Sprintf("repo_id = %d", id)).First(&repo).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, util.NewSucOpResult()
+		} else {
+			return nil, util.NewOpResult(util.ErrDBRead, "[GetRepoInfoById] get db record err")
+		}
+	}
 	return repo, util.NewSucOpResult()
 }
 
-func GetRepoInfoByStatus(status enumeration.RepoStatusEnum) (*domain.Repo, util.OpResult) {
+func GetRepoInfoByStatus(ctx context.Context, status enumeration.RepoStatusEnum) (*domain.Repo, util.OpResult) {
 	var repo *domain.Repo
-	client.DBClient.First(repo, "status = ?", strconv.Itoa(int(status)))
+	dbr, err := manager.CodeFactoryDBRead.GetConnection()
+	if err != nil {
+		logs.CtxError(ctx, "[GetRepoInfoByStatus] get db connection err: %v", err)
+		return repo, util.NewOpResult(util.ErrDBConnect, "[GetRepoInfoById] get db connection err")
+	}
+	err = dbr.Where(fmt.Sprintf("status = %d", status)).First(&repo).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, util.NewSucOpResult()
+		} else {
+			return nil, util.NewOpResult(util.ErrDBRead, "[GetRepoInfoByStatus] get db record err")
+		}
+	}
 	return repo, util.NewSucOpResult()
 }
