@@ -1,17 +1,19 @@
 package util
 
 import (
-	"code.byted.org/gopkg/logs"
+	"ci/logs"
+	"context"
 	"encoding/json"
+	"fmt"
 )
 
-func MarshallOrElseEmpty(v interface{}) string {
+func MarshallOrElseEmpty(ctx context.Context, v interface{}) string {
 	if v == nil {
 		return "nil"
 	}
 	data, err := json.Marshal(v)
 	if err != nil {
-		logs.Error("marshall exception, err: %v", err)
+		logs.CtxError(ctx, fmt.Sprintf("marshall exception, err: %v", err))
 	}
 	return string(data)
 }

@@ -3,10 +3,9 @@ package method
 import (
 	"ci/dao"
 	"ci/domain"
-	"ci/thrift_gen/base"
-	code_factory_ci "ci/thrift_gen/code/factory/ci"
+	"ci/logs"
+	code_factory_ci "ci/gen-go/ci"
 	"ci/util"
-	"code.byted.org/gopkg/logs"
 	"context"
 	"fmt"
 	git "github.com/libgit2/git2go"
@@ -23,22 +22,22 @@ func IsTargetRepoUpdated(ctx context.Context, r *code_factory_ci.IsTargetRepoUpd
 	repo, _ := git.OpenRepository(repoStruct.Url)
 	remote, _ := repo.Remotes.Lookup("origin")
 	if err := remote.Fetch([]string{}, nil, ""); err != nil {
-		logs.CtxError(ctx, "fetch remote fail, err: %+v", err)
+		logs.CtxError(ctx, fmt.Sprintf("fetch remote fail, err: %+v", err))
 		return buildIsTargetRepoUpdated(false, fmt.Sprintf("fetch remote fail, err: %+v", err), util.ErrSystemInternal), nil
 	}
 	head, err := repo.Head()
 	if err != nil {
-		logs.CtxError(ctx, "get remote head fail, err: %+v", err)
+		logs.CtxError(ctx, fmt.Sprintf("get remote head fail, err: %+v", err))
 		return buildIsTargetRepoUpdated(false, fmt.Sprintf("get remote head fail, err: %+v", err), util.ErrSystemInternal), nil
 	}
 	commit, err := repo.LookupCommit(head.Branch().Target())
 	if err != nil {
-		logs.CtxError(ctx, "get latest commit fail, err: %+v", err)
+		logs.CtxError(ctx, fmt.Sprintf("get latest commit fail, err: %+v", err))
 		return buildIsTargetRepoUpdated(false, fmt.Sprintf("get latest commit fail, err: %+v", err), util.ErrSystemInternal), nil
 	}
 	id, err := strconv.Atoi(commit.Id().String())
 	if err != nil {
-		logs.CtxError(ctx, "atoi fail, err: %+v", err)
+		logs.CtxError(ctx, fmt.Sprintf("atoi fail, err: %+v", err))
 		return buildIsTargetRepoUpdated(false, fmt.Sprintf("atoi fail, err: %+v", err), util.ErrSystemInternal), nil
 	}
 	c := &domain.Commit{
@@ -68,7 +67,7 @@ func buildSucIsTargetRepoUpdated() *code_factory_ci.IsTargetRepoUpdatedResponse 
 func buildIsTargetRepoUpdated(isUpdated bool, msg string, code int32) *code_factory_ci.IsTargetRepoUpdatedResponse {
 	resp := &code_factory_ci.IsTargetRepoUpdatedResponse{
 		IsUpdated: &isUpdated,
-		BaseResp: &base.BaseResp{
+		BaseResp: &code_factory_ci.BaseResp{
 			StatusMessage: msg,
 			StatusCode:    code,
 			Extra:         nil,
@@ -85,7 +84,7 @@ func buildSucFetchTargetRepoLastCommitResp(commit *code_factory_ci.CommitStruct)
 func buildFetchTargetRepoLastCommitResp(commit *code_factory_ci.CommitStruct, msg string, code int32) *code_factory_ci.FetchTargetRepoLastCommitResonse {
 	resp := &code_factory_ci.FetchTargetRepoLastCommitResonse{
 		Commit: commit,
-		BaseResp: &base.BaseResp{
+		BaseResp: &code_factory_ci.BaseResp{
 			StatusMessage: msg,
 			StatusCode:    code,
 			Extra:         nil,
