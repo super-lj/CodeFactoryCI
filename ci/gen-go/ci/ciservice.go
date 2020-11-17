@@ -6,9 +6,8 @@ package ci
 import (
 	"bytes"
 	"context"
-	"ci/thrift_gen/base"
-	"code.byted.org/gopkg/thrift"
 	"fmt"
+	"git.apache.org/thrift.git/lib/go/thrift"
 )
 
 // (needed to ensure safety because of naive import list construction.)
@@ -16,18 +15,16 @@ var _ = thrift.ZERO
 var _ = fmt.Printf
 var _ = bytes.Equal
 
-var _ = base.GoUnusedProtection__
-
-type CodeFactoryCiService interface {
+type CIService interface {
 	// Parameters:
 	//  - Req
-	IsTargetRepoUpdated(ctx context.Context, req *IsTargetRepoUpdatedRequest) (r *IsTargetRepoUpdatedResponse, err error)
+	IsTargetRepoUpdated(req *IsTargetRepoUpdatedRequest) (r *IsTargetRepoUpdatedResponse, err error)
 	// Parameters:
 	//  - Req
-	FetchTargetRepoLastCommit(ctx context.Context, req *FetchTargetRepoLastCommitRequest) (r *FetchTargetRepoLastCommitResonse, err error)
+	FetchTargetRepoLastCommit(req *FetchTargetRepoLastCommitRequest) (r *FetchTargetRepoLastCommitResonse, err error)
 }
 
-type CodeFactoryCiServiceClient struct {
+type CIServiceClient struct {
 	Transport       thrift.TTransport
 	ProtocolFactory thrift.TProtocolFactory
 	InputProtocol   thrift.TProtocol
@@ -35,8 +32,8 @@ type CodeFactoryCiServiceClient struct {
 	SeqId           int32
 }
 
-func NewCodeFactoryCiServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *CodeFactoryCiServiceClient {
-	return &CodeFactoryCiServiceClient{Transport: t,
+func NewCIServiceClientFactory(t thrift.TTransport, f thrift.TProtocolFactory) *CIServiceClient {
+	return &CIServiceClient{Transport: t,
 		ProtocolFactory: f,
 		InputProtocol:   f.GetProtocol(t),
 		OutputProtocol:  f.GetProtocol(t),
@@ -44,8 +41,8 @@ func NewCodeFactoryCiServiceClientFactory(t thrift.TTransport, f thrift.TProtoco
 	}
 }
 
-func NewCodeFactoryCiServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *CodeFactoryCiServiceClient {
-	return &CodeFactoryCiServiceClient{Transport: t,
+func NewCIServiceClientProtocol(t thrift.TTransport, iprot thrift.TProtocol, oprot thrift.TProtocol) *CIServiceClient {
+	return &CIServiceClient{Transport: t,
 		ProtocolFactory: nil,
 		InputProtocol:   iprot,
 		OutputProtocol:  oprot,
@@ -55,14 +52,14 @@ func NewCodeFactoryCiServiceClientProtocol(t thrift.TTransport, iprot thrift.TPr
 
 // Parameters:
 //  - Req
-func (p *CodeFactoryCiServiceClient) IsTargetRepoUpdated(req *IsTargetRepoUpdatedRequest) (r *IsTargetRepoUpdatedResponse, err error) {
+func (p *CIServiceClient) IsTargetRepoUpdated(req *IsTargetRepoUpdatedRequest) (r *IsTargetRepoUpdatedResponse, err error) {
 	if err = p.sendIsTargetRepoUpdated(req); err != nil {
 		return
 	}
 	return p.recvIsTargetRepoUpdated()
 }
 
-func (p *CodeFactoryCiServiceClient) sendIsTargetRepoUpdated(req *IsTargetRepoUpdatedRequest) (err error) {
+func (p *CIServiceClient) sendIsTargetRepoUpdated(req *IsTargetRepoUpdatedRequest) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -81,10 +78,10 @@ func (p *CodeFactoryCiServiceClient) sendIsTargetRepoUpdated(req *IsTargetRepoUp
 	if err = oprot.WriteMessageEnd(); err != nil {
 		return
 	}
-	return oprot.Flush()
+	return oprot.Flush(context.Background())
 }
 
-func (p *CodeFactoryCiServiceClient) recvIsTargetRepoUpdated() (value *IsTargetRepoUpdatedResponse, err error) {
+func (p *CIServiceClient) recvIsTargetRepoUpdated() (value *IsTargetRepoUpdatedResponse, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -95,16 +92,13 @@ func (p *CodeFactoryCiServiceClient) recvIsTargetRepoUpdated() (value *IsTargetR
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error0 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error1 error
-		error1, err = error0.Read(iprot)
-		if err != nil {
-			return
-		}
+		error4 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error5 error
+		error5 = error4.Read(iprot)
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error1
+		err = error5
 		return
 	}
 	if p.SeqId != seqId {
@@ -124,14 +118,14 @@ func (p *CodeFactoryCiServiceClient) recvIsTargetRepoUpdated() (value *IsTargetR
 
 // Parameters:
 //  - Req
-func (p *CodeFactoryCiServiceClient) FetchTargetRepoLastCommit(req *FetchTargetRepoLastCommitRequest) (r *FetchTargetRepoLastCommitResonse, err error) {
+func (p *CIServiceClient) FetchTargetRepoLastCommit(req *FetchTargetRepoLastCommitRequest) (r *FetchTargetRepoLastCommitResonse, err error) {
 	if err = p.sendFetchTargetRepoLastCommit(req); err != nil {
 		return
 	}
 	return p.recvFetchTargetRepoLastCommit()
 }
 
-func (p *CodeFactoryCiServiceClient) sendFetchTargetRepoLastCommit(req *FetchTargetRepoLastCommitRequest) (err error) {
+func (p *CIServiceClient) sendFetchTargetRepoLastCommit(req *FetchTargetRepoLastCommitRequest) (err error) {
 	oprot := p.OutputProtocol
 	if oprot == nil {
 		oprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -150,10 +144,10 @@ func (p *CodeFactoryCiServiceClient) sendFetchTargetRepoLastCommit(req *FetchTar
 	if err = oprot.WriteMessageEnd(); err != nil {
 		return
 	}
-	return oprot.Flush()
+	return oprot.Flush(context.Background())
 }
 
-func (p *CodeFactoryCiServiceClient) recvFetchTargetRepoLastCommit() (value *FetchTargetRepoLastCommitResonse, err error) {
+func (p *CIServiceClient) recvFetchTargetRepoLastCommit() (value *FetchTargetRepoLastCommitResonse, err error) {
 	iprot := p.InputProtocol
 	if iprot == nil {
 		iprot = p.ProtocolFactory.GetProtocol(p.Transport)
@@ -164,16 +158,13 @@ func (p *CodeFactoryCiServiceClient) recvFetchTargetRepoLastCommit() (value *Fet
 		return
 	}
 	if mTypeId == thrift.EXCEPTION {
-		error2 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
-		var error3 error
-		error3, err = error2.Read(iprot)
-		if err != nil {
-			return
-		}
+		error6 := thrift.NewTApplicationException(thrift.UNKNOWN_APPLICATION_EXCEPTION, "Unknown Exception")
+		var error7 error
+		error7 = error6.Read(iprot)
 		if err = iprot.ReadMessageEnd(); err != nil {
 			return
 		}
-		err = error3
+		err = error7
 		return
 	}
 	if p.SeqId != seqId {
@@ -191,60 +182,48 @@ func (p *CodeFactoryCiServiceClient) recvFetchTargetRepoLastCommit() (value *Fet
 	return
 }
 
-type CodeFactoryCiServiceProcessor struct {
-	processorMap map[string]thrift.TProcessorFunctionWithContext
-	handler      CodeFactoryCiService
+type CIServiceProcessor struct {
+	processorMap map[string]thrift.TProcessorFunction
+	handler      CIService
 }
 
-func (p *CodeFactoryCiServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunctionWithContext) {
+func (p *CIServiceProcessor) AddToProcessorMap(key string, processor thrift.TProcessorFunction) {
 	p.processorMap[key] = processor
 }
 
-func (p *CodeFactoryCiServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunctionWithContext, ok bool) {
+func (p *CIServiceProcessor) GetProcessorFunction(key string) (processor thrift.TProcessorFunction, ok bool) {
 	processor, ok = p.processorMap[key]
 	return processor, ok
 }
 
-func (p *CodeFactoryCiServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunctionWithContext {
+func (p *CIServiceProcessor) ProcessorMap() map[string]thrift.TProcessorFunction {
 	return p.processorMap
 }
 
-func NewCodeFactoryCiServiceProcessor(handler CodeFactoryCiService) *CodeFactoryCiServiceProcessor {
-
-	self4 := &CodeFactoryCiServiceProcessor{handler: handler, processorMap: make(map[string]thrift.TProcessorFunctionWithContext)}
-	self4.processorMap["IsTargetRepoUpdated"] = &codeFactoryCiServiceProcessorIsTargetRepoUpdated{handler: handler}
-	self4.processorMap["FetchTargetRepoLastCommit"] = &codeFactoryCiServiceProcessorFetchTargetRepoLastCommit{handler: handler}
-	return self4
-}
-
-func (p *CodeFactoryCiServiceProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
-	return p.ProcessWithContext(context.Background(), iprot, oprot)
-}
-
-func (p *CodeFactoryCiServiceProcessor) ProcessWithContext(ctx context.Context, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *CIServiceProcessor) Process(iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	name, _, seqId, err := iprot.ReadMessageBegin()
 	if err != nil {
 		return false, err
 	}
 	if processor, ok := p.GetProcessorFunction(name); ok {
-		return processor.Process(ctx, seqId, iprot, oprot)
+		return processor.Process(context.Background(), seqId, iprot, oprot)
 	}
 	iprot.Skip(thrift.STRUCT)
 	iprot.ReadMessageEnd()
-	x5 := thrift.NewTApplicationException(thrift.UNKNOWN_METHOD, "Unknown function "+name)
+	x9 := thrift.NewTApplicationException(thrift.UNKNOWN_METHOD, "Unknown function "+name)
 	oprot.WriteMessageBegin(name, thrift.EXCEPTION, seqId)
-	x5.Write(oprot)
+	x9.Write(oprot)
 	oprot.WriteMessageEnd()
-	oprot.Flush()
-	return false, x5
+	oprot.Flush(context.Background())
+	return false, x9
 
 }
 
-type codeFactoryCiServiceProcessorIsTargetRepoUpdated struct {
-	handler CodeFactoryCiService
+type cIServiceProcessorIsTargetRepoUpdated struct {
+	handler CIService
 }
 
-func (p *codeFactoryCiServiceProcessorIsTargetRepoUpdated) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *cIServiceProcessorIsTargetRepoUpdated) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := IsTargetRepoUpdatedArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -252,7 +231,7 @@ func (p *codeFactoryCiServiceProcessorIsTargetRepoUpdated) Process(ctx context.C
 		oprot.WriteMessageBegin("IsTargetRepoUpdated", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
-		oprot.Flush()
+		oprot.Flush(context.Background())
 		return false, err
 	}
 
@@ -260,12 +239,12 @@ func (p *codeFactoryCiServiceProcessorIsTargetRepoUpdated) Process(ctx context.C
 	result := IsTargetRepoUpdatedResult{}
 	var retval *IsTargetRepoUpdatedResponse
 	var err2 error
-	if retval, err2 = p.handler.IsTargetRepoUpdated(ctx, args.Req); err2 != nil {
+	if retval, err2 = p.handler.IsTargetRepoUpdated(args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing IsTargetRepoUpdated: "+err2.Error())
 		oprot.WriteMessageBegin("IsTargetRepoUpdated", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
-		oprot.Flush()
+		oprot.Flush(context.Background())
 		return true, err2
 	} else {
 		result.Success = retval
@@ -279,7 +258,7 @@ func (p *codeFactoryCiServiceProcessorIsTargetRepoUpdated) Process(ctx context.C
 	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
 		err = err2
 	}
-	if err2 = oprot.Flush(); err == nil && err2 != nil {
+	if err2 = oprot.Flush(context.Background()); err == nil && err2 != nil {
 		err = err2
 	}
 	if err != nil {
@@ -288,11 +267,11 @@ func (p *codeFactoryCiServiceProcessorIsTargetRepoUpdated) Process(ctx context.C
 	return true, err
 }
 
-type codeFactoryCiServiceProcessorFetchTargetRepoLastCommit struct {
-	handler CodeFactoryCiService
+type cIServiceProcessorFetchTargetRepoLastCommit struct {
+	handler CIService
 }
 
-func (p *codeFactoryCiServiceProcessorFetchTargetRepoLastCommit) Process(ctx context.Context, seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
+func (p *cIServiceProcessorFetchTargetRepoLastCommit) Process(seqId int32, iprot, oprot thrift.TProtocol) (success bool, err thrift.TException) {
 	args := FetchTargetRepoLastCommitArgs{}
 	if err = args.Read(iprot); err != nil {
 		iprot.ReadMessageEnd()
@@ -300,7 +279,7 @@ func (p *codeFactoryCiServiceProcessorFetchTargetRepoLastCommit) Process(ctx con
 		oprot.WriteMessageBegin("FetchTargetRepoLastCommit", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
-		oprot.Flush()
+		oprot.Flush(context.Background())
 		return false, err
 	}
 
@@ -308,12 +287,12 @@ func (p *codeFactoryCiServiceProcessorFetchTargetRepoLastCommit) Process(ctx con
 	result := FetchTargetRepoLastCommitResult{}
 	var retval *FetchTargetRepoLastCommitResonse
 	var err2 error
-	if retval, err2 = p.handler.FetchTargetRepoLastCommit(ctx, args.Req); err2 != nil {
+	if retval, err2 = p.handler.FetchTargetRepoLastCommit(args.Req); err2 != nil {
 		x := thrift.NewTApplicationException(thrift.INTERNAL_ERROR, "Internal error processing FetchTargetRepoLastCommit: "+err2.Error())
 		oprot.WriteMessageBegin("FetchTargetRepoLastCommit", thrift.EXCEPTION, seqId)
 		x.Write(oprot)
 		oprot.WriteMessageEnd()
-		oprot.Flush()
+		oprot.Flush(context.Background())
 		return true, err2
 	} else {
 		result.Success = retval
@@ -327,7 +306,7 @@ func (p *codeFactoryCiServiceProcessorFetchTargetRepoLastCommit) Process(ctx con
 	if err2 = oprot.WriteMessageEnd(); err == nil && err2 != nil {
 		err = err2
 	}
-	if err2 = oprot.Flush(); err == nil && err2 != nil {
+	if err2 = oprot.Flush(context.Background()); err == nil && err2 != nil {
 		err = err2
 	}
 	if err != nil {

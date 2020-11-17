@@ -1,12 +1,11 @@
 package manager
 
 import (
-	"code.byted.org/gopkg/dbutil/gormdb"
-	"code.byted.org/kv/goredis"
+	"github.com/go-redis/redis"
+	"github.com/jinzhu/gorm"
 )
 
 var (
-	CodeFactoryDBRead  *gormdb.DBHandler
-	CodeFactoryDBWrite *gormdb.DBHandler
-	CodeFactoryRedis   *goredis.Client
+	CodeFactoryDBRead *gorm.DB
+	CodeFactoryRedis  *redis.Client
 )
